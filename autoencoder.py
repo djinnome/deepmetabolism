@@ -44,7 +44,7 @@ class PlainAutoEncoder:
         self.non_zero_actual_pheno = tf.add(self.actual_pheno, 0.00001*tf.ones(tf.shape(self.actual_pheno))) # Add tiny number to actual phenotype
         # Absolute relative errors
         self.supervised_loss = tf.reduce_sum(tf.abs(tf.div(tf.subtract(self.non_zero_actual_pheno, self.pred_pheno), self.non_zero_actual_pheno)))
-        #self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
+        self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
 
     def init_variables(self, session):
         self.sess = session
@@ -81,8 +81,6 @@ class PlainAutoEncoder:
         return cost
 
     def supervised_fit(self, gene, pheno):
-        optimizer = tf.train.AdamOptimizer()
-        self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
         cost, opt = self.sess.run((self.supervised_loss, self.optimizer2), feed_dict={self.gene: gene, self.actual_pheno: pheno})
         return cost
 
