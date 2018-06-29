@@ -2,8 +2,8 @@ import tensorflow as tf
         
 class PlainAutoEncoder:
     def __init__(self, num_gene, num_protein, num_pheno, GP_MATRIX, PP_MATRIX, pheno_indices, model_directory, optimizer=tf.train.AdamOptimizer()):
-	self.model_save_to = model_directory
-	self.pheno_indices = pheno_indices
+        self.model_save_to = model_directory
+        self.pheno_indices = pheno_indices
         self.num_gene = num_gene
         self.num_protein = num_protein
         self.num_pheno = num_pheno
@@ -31,20 +31,20 @@ class PlainAutoEncoder:
         self.gene = tf.placeholder(tf.float32, [None, self.num_gene], name="gene")
         self.reconstruction = self._forward_op(self.gene)
         # TP: loss function here is RMSE (absolute), not relative error.
-        self.reconstruction_cost = tf.reduce_sum(tf.pow(tf.sub(self.reconstruction, self.gene), 2.0))
+        self.reconstruction_cost = tf.reduce_sum(tf.pow(tf.subtract(self.reconstruction, self.gene), 2.0))
         self.optimizer1 = optimizer.minimize(self.reconstruction_cost)
 
         # Input, output and optimizer for supervised.
-        self.actual_pheno = tf.placeholder(tf.float32, [None, len(self.pheno_indices)], name="growth_rate")
+        self.actual_pheno = tf.placeholder(tf.float32, [None, len(list(self.pheno_indices))], name="growth_rate")
 
         pheno_layer = self._half_forward_op(self.gene)
-        self.pred_pheno = tf.transpose(tf.pack([pheno_layer[:, i] for i in self.pheno_indices]))
+        self.pred_pheno = tf.transpose(tf.stack([pheno_layer[:, i] for i in self.pheno_indices]))
 
         # TP: supervised loss may also need to consider unsupervised loss as a factor.
         self.non_zero_actual_pheno = tf.add(self.actual_pheno, 0.00001*tf.ones(tf.shape(self.actual_pheno))) # Add tiny number to actual phenotype
         # Absolute relative errors
-        self.supervised_loss = tf.reduce_sum(tf.abs(tf.div(tf.sub(self.non_zero_actual_pheno, self.pred_pheno), self.non_zero_actual_pheno)))
-        self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
+        self.supervised_loss = tf.reduce_sum(tf.abs(tf.div(tf.subtract(self.non_zero_actual_pheno, self.pred_pheno), self.non_zero_actual_pheno)))
+        #self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
 
     def init_variables(self, session):
         self.sess = session
@@ -57,14 +57,14 @@ class PlainAutoEncoder:
         })
 
     def model_saver(self):
-	saver = tf.train.Saver()
-	save_path = saver.save(self.sess, self.model_save_to)
-	return save_path
+        saver = tf.train.Saver()
+        save_path = saver.save(self.sess, self.model_save_to)
+        return save_path
 
     def model_loader(self):
-	saver = tf.train.Saver()
-	saver.restore(self.sess, self.model_save_to)
-	print("Model {} is loaded.".format(self.model_save_to))
+        saver = tf.train.Saver()
+        saver.restore(self.sess, self.model_save_to)
+        print("Model {} is loaded.".format(self.model_save_to))
 
     def get_weight_and_bias(self):
         """ Get the weight matrix from protein to phenotype """
@@ -93,19 +93,19 @@ class PlainAutoEncoder:
     """ Operators (private) """
 
     def _protein_op(self, X):
-        return tf.matmul(X, tf.mul(self.GP_MATRIX, self.w1))
+        return tf.matmul(X, tf.multiply(self.GP_MATRIX, self.w1))
 
     def _half_forward_op(self, X):
         """ Tensor operator to calcualte phenotype """
         # TP: use tf.nn.tanh, tf.nn.sigmoid etc instead of softplus
         # For more activation functions see https://www.tensorflow.org/versions/r0.11/api_docs/python/nn.html#activation-functions
         protein_encode = self._protein_op(X)
-        phenotype = tf.nn.softplus(tf.add(tf.matmul(protein_encode, tf.mul(self.PP_MATRIX, self.w2)), self.b2))
+        phenotype = tf.nn.softplus(tf.add(tf.matmul(protein_encode, tf.multiply(self.PP_MATRIX, self.w2)), self.b2))
         return phenotype
 
     def _forward_op(self, X):
         """ Tensor operator to reconstruct input X """
         phenotype = self._half_forward_op(X)
-        protein_decode = tf.nn.softplus(tf.add(tf.matmul(phenotype, tf.mul(tf.transpose(self.PP_MATRIX), self.w3)), self.b4))
-        reconstructed = tf.matmul(protein_decode, tf.mul(tf.transpose(self.GP_MATRIX), self.w4))  # GP_MATRIX is 0/1 value to filter out unrelated weights.
+        protein_decode = tf.nn.softplus(tf.add(tf.matmul(phenotype, tf.multiply(tf.transpose(self.PP_MATRIX), self.w3)), self.b4))
+        reconstructed = tf.matmul(protein_decode, tf.multiply(tf.transpose(self.GP_MATRIX), self.w4))  # GP_MATRIX is 0/1 value to filter out unrelated weights.
         return reconstructed

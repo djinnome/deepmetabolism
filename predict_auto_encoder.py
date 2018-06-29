@@ -54,10 +54,10 @@ def read_data():
 def run_training(auto_encoder,  gene_train):
     with tf.Session() as sess:
         auto_encoder.init_variables(sess)
-	auto_encoder.model_loader()
-	prediction = auto_encoder.predict_pheno(gene_train)
-	np.savetxt(predict_save_to, prediction, delimiter = ',')
-	print("Your phenotype prediction is save to {}.".format(predict_save_to))
+        auto_encoder.model_loader()
+        prediction = auto_encoder.predict_pheno(gene_train)
+        np.savetxt(predict_save_to, prediction, delimiter = ',')
+        print("Your phenotype prediction is save to {}.".format(predict_save_to))
 
 #### Do not change anything below
 def main(argv):

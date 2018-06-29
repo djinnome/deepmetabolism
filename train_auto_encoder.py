@@ -14,7 +14,7 @@ from numpy import genfromtxt
 from autoencoder import PlainAutoEncoder
 from scipy.stats.stats import pearsonr
 from six.moves import xrange
-from confige import config
+from config import config
 
 data_process = config['data_process']
 gene_max = data_process['gene_expression_maximum_level']
@@ -101,16 +101,16 @@ def run_supervised_training(auto_encoder, supervised_gene, supervised_growth):
 
     for train_index, test_index in kf.split(supervised_gene):
         j += 1
-	print("{}-fold training is optimizing...".format(j))
+        print("{}-fold training is optimizing...".format(j))
         gene_train, gene_test = supervised_gene[train_index], supervised_gene[test_index]
         pheno_train, pheno_test = supervised_growth[train_index], supervised_growth[test_index]
-	if len(pheno_train.shape) == 1:
-	    pheno_train = np.vstack(pheno_train)
-	if len(pheno_test.shape) == 1:
-	    pheno_test = np.vstack(pheno_test)
+        if len(pheno_train.shape) == 1:
+            pheno_train = np.vstack(pheno_train)
+        if len(pheno_test.shape) == 1:
+            pheno_test = np.vstack(pheno_test)
         delta = 10.0
-	min_delta = sp['converge_delta']
-	max_epoch = sp['epochs']
+        min_delta = sp['converge_delta']
+        max_epoch = sp['epochs']
         last_cost = 1000000
         epoch = 0
         start_time = time.time()
@@ -119,11 +119,11 @@ def run_supervised_training(auto_encoder, supervised_gene, supervised_growth):
             delta = last_cost - supervised_cost
             last_cost = supervised_cost
             epoch +=1
-	if epoch == max_epoch:
-	    warnings.warn("The supervised training for this fold is not converged!")
-	    print("Uncoverged delta is {}.".format(delta))
-	else:
-	    print("Training supervised until delta converges {} at epoch {}".format(delta, epoch))
+        if epoch == max_epoch:
+            warnings.warn("The supervised training for this fold is not converged!")
+            print("Uncoverged delta is {}.".format(delta))
+        else:
+            print("Training supervised until delta converges {} at epoch {}".format(delta, epoch))
         time_cost = time.time()-start_time
         print("The final cost of {}-fold supervised training is {}, time cost is {}.\n".format(j, last_cost, time_cost))
         w, b = auto_encoder.get_weight_and_bias()
@@ -136,7 +136,7 @@ def run_supervised_training(auto_encoder, supervised_gene, supervised_growth):
             if sp['save_to'] != '':
                 f.write("%s, %s\n" % (array_pretty(actual), array_pretty(predicted)))
     if f:
-	f.close()
+        f.close()
     return predictions, actual_values
 
 
@@ -148,17 +148,17 @@ def model_generation(auto_encoder, supervised_gene, supervised_growth):
     epoch = 0
     start_time = time.time()
     if len(supervised_growth.shape) == 1:
-	supervised_growth = np.vstack(supervised_growth)
+        supervised_growth = np.vstack(supervised_growth)
     while math.fabs(delta) > min_delta and epoch < max_epoch:
-	supervised_cost = auto_encoder.supervised_fit(supervised_gene, supervised_growth)
-	delta = last_cost - supervised_cost
-	last_cost = supervised_cost
-	epoch += 1
+        supervised_cost = auto_encoder.supervised_fit(supervised_gene, supervised_growth)
+        delta = last_cost - supervised_cost
+        last_cost = supervised_cost
+        epoch += 1
     if epoch == max_epoch:
-	warnings.warn("The final model is not converged.")
-	print("Uncoverged delta is {}.".format(delta))
+        warnings.warn("The final model is not converged.")
+        print("Uncoverged delta is {}.".format(delta))
     else:
-	print("Final training of DeepMetabolism model converges {} at epoch {}.".format(delta, epoch))
+        print("Final training of DeepMetabolism model converges {} at epoch {}.".format(delta, epoch))
     time_cost = time.time() - start_time
     print("The final cost of model training is {}, the time cost is {}.\n".format(last_cost, time_cost))
         
@@ -168,9 +168,9 @@ def run_training(auto_encoder, gene_train_repeat, gene_train, supervised_gene, s
         auto_encoder.init_variables(sess)
         run_unsupervised_training(auto_encoder, gene_train_repeat, gene_train)
         predict, actual = run_supervised_training(auto_encoder, supervised_gene, supervised_growth)
-	model_generation(auto_encoder, supervised_gene, supervised_growth)
-	save_path = auto_encoder.model_saver()
-	print("Your graphic model is saved to {}.".format(save_path))
+        model_generation(auto_encoder, supervised_gene, supervised_growth)
+        save_path = auto_encoder.model_saver()
+        print("Your graphic model is saved to {}.".format(save_path))
 
 
 #### Do not change anything below
