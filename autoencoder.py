@@ -81,6 +81,8 @@ class PlainAutoEncoder:
         return cost
 
     def supervised_fit(self, gene, pheno):
+        optimizer = tf.train.AdamOptimizer()
+        self.optimizer2 = optimizer.minimize(self.supervised_loss, var_list=[self.b2, self.w2])
         cost, opt = self.sess.run((self.supervised_loss, self.optimizer2), feed_dict={self.gene: gene, self.actual_pheno: pheno})
         return cost
 

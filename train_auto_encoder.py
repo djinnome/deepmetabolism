@@ -68,7 +68,8 @@ def predict_and_save(auto_encoder, data):
     sample_batch_size = len(data)
     sample, _ = get_random_block_from_data(data, sample_batch_size, sample_batch_size)
     result = auto_encoder.get_reconstruction(sample)
-    np.savetxt(up['save_to'], np.hstack((np.array(sample), result))[:len(data) / 2], delimiter=',')
+    #print("result shape: {}\nsample shape: {}\ndata shape: {}\nhstack shape: {}\n".format(result.shape, np.array(sample).shape, len(data), np.hstack((np.array(sample), result)).shape ))
+    np.savetxt(up['save_to'], np.hstack((np.array(sample), result))[:len(data) // 2], delimiter=',')
 
 
 def run_unsupervised_training(auto_encoder, gene_train_repeat, non_repeat):
@@ -176,6 +177,7 @@ def run_training(auto_encoder, gene_train_repeat, gene_train, supervised_gene, s
 #### Do not change anything below
 def main(argv):
     gene_train, gene_train_raw, supervised_gene, supervised_growth, auto_encoder = read_data()
+    print("Training variables: {}".format( tf.trainable_variables() ) )
     gene_train_repeat = np.repeat(gene_train, axis=0, repeats=2)
     run_training(auto_encoder, gene_train_repeat, gene_train, supervised_gene, supervised_growth)
 
