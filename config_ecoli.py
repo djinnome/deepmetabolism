@@ -23,7 +23,7 @@ config = {
         'supervised':
                 {
                         'gene': 'E_coli_model/iJO1366_supervised_transcriptomics.csv',
-                        'phenotype': 'E_coli_model/iJO1366_supervised_phenotype_growth.csv',
+                        'phenotype': 'E_coli_model/iJO1366_supervised_phenotype.csv',
                         'epochs': 100000,
                         'converge_delta': 0.0001,
                         'indices': 'E_coli_model/iJO1366_phenotype_indices.txt',
