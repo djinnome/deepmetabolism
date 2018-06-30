@@ -9,7 +9,7 @@ config = {
         'model_construct':
                 {
                         'gene_protein_connection_mask': 'E_coli_model/iJO1366_gene_protein_rule.csv',
-                        'protein_phenotype_connection_mask': 'E_coli_model/iJO1366_protein_phenotype_rule_growth.csv',
+                        'protein_phenotype_connection_mask': 'E_coli_model/iJO1366_protein_phenotype_rule.csv',
 
                 },
         'unsupervised':
